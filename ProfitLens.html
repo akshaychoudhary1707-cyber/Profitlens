@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profit Lens — Sales Analytics Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#101d33;--blue:#2563eb;--blue2:#dbeafe;--text:#15213a;
+  --muted:#71809a;--border:#e5eaf2;--bg:#f6f8fc;--white:#fff;
+  --green:#16a34a;--orange:#f59e0b;--purple:#8b5cf6;--red:#ef4444;
+}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+.sidebar{width:185px;background:linear-gradient(180deg,#111f35,#172945);color:#fff;position:fixed;left:0;top:0;bottom:0;padding:18px 13px;display:flex;flex-direction:column;z-index:10}
+.brand{text-align:center;margin-bottom:25px}.brand-icon{width:52px;height:52px;border-radius:15px;background:#1261e9;margin:auto;display:grid;place-items:center;font-size:26px;box-shadow:0 8px 20px #07122666}.brand h2{font-size:16px;margin-top:8px}
+.nav{display:flex;flex-direction:column;gap:6px}.nav button{border:0;background:none;color:#d9e2f1;padding:11px 10px;border-radius:8px;text-align:left;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px}.nav button:hover,.nav button.active{background:#21447d;color:#fff}.nav .ico{width:20px;text-align:center}.logout{margin-top:auto;border:0;background:none;color:#d9e2f1;padding:12px 10px;text-align:left;font-size:14px;cursor:pointer}
+.main{margin-left:185px;width:calc(100% - 185px);padding:24px;max-width:1700px;margin-right:auto}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.title h1{font-size:25px}.title p{color:var(--muted);font-size:13px;margin-top:5px}.actions{display:flex;gap:10px}.control{background:white;border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#34415b;font-size:13px;cursor:pointer}.control:hover{border-color:#b8c5dc}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-bottom:18px}.card{background:#fff;border:1px solid var(--border);border-radius:13px;box-shadow:0 3px 12px #17294508}.kpi{padding:20px;display:flex;gap:14px;align-items:flex-start}.kpi-icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:22px;flex:none}.kpi:nth-child(1) .kpi-icon{background:#eaf2ff}.kpi:nth-child(2) .kpi-icon{background:#e4f8e9}.kpi:nth-child(3) .kpi-icon{background:#f0e9ff}.kpi:nth-child(4) .kpi-icon{background:#fff0e2}.kpi:nth-child(5) .kpi-icon{background:#e5f8fa}.kpi-label{font-size:12px;color:#5d6b84}.kpi-value{font-size:21px;font-weight:700;margin:7px 0}.growth{font-size:11px;color:var(--green)}.vs{color:#8a95a8;margin-left:5px}
+.grid-main{display:grid;grid-template-columns:2fr 1.18fr;gap:18px;margin-bottom:18px}.panel{padding:18px;min-height:292px}.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.panel h3{font-size:15px}.small-select{border:1px solid var(--border);background:#fff;padding:7px 10px;border-radius:7px;font-size:12px}
+.chart{height:220px;position:relative}.chart svg{width:100%;height:100%;overflow:visible}.axis{font-size:10px;fill:#7b879b}.gridline{stroke:#e9edf4;stroke-dasharray:4 5}.line{fill:none;stroke:#2563eb;stroke-width:3}.area{fill:#dce9ff;opacity:.7}.point{fill:#fff;stroke:#2563eb;stroke-width:2}
+.bar-chart{height:225px;display:flex;align-items:flex-end;gap:7px;padding:10px 4px 24px;border-bottom:1px solid #e8edf4}.bar-wrap{height:100%;flex:1;display:flex;align-items:flex-end;justify-content:center;position:relative}.bar{width:68%;max-width:18px;background:#f59e0b;border-radius:4px 4px 0 0;min-height:4px}.bar-label{position:absolute;bottom:-20px;font-size:9px;color:#7b879b}
+.lower{display:grid;grid-template-columns:1.25fr 1fr 1.15fr;gap:18px;margin-bottom:18px}.table{width:100%;border-collapse:collapse;font-size:12px}.table th{color:#6c7890;text-align:left;font-weight:500;padding:8px;border-bottom:1px solid #edf0f5}.table td{padding:9px 8px;border-bottom:1px solid #f0f2f6}.rank{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#eaf2ff;color:#2563eb;font-size:10px;font-weight:bold}.mini-line{height:5px;background:#e9eef7;border-radius:5px;overflow:hidden}.mini-line span{display:block;height:100%;background:#3b82f6;border-radius:5px}
+.products{display:flex;gap:20px;align-items:center}.donut{width:135px;height:135px;border-radius:50%;background:conic-gradient(#2563eb 0 21.4%,#36b76a 21.4% 41%,#f59e0b 41% 54.8%,#8b5cf6 54.8% 67%,#cbd2dd 67%);position:relative;flex:none}.donut:after{content:"";position:absolute;width:67px;height:67px;border-radius:50%;background:white;left:34px;top:34px}.legend{font-size:11px;display:flex;flex-direction:column;gap:10px}.legend span{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}
+.insights{display:flex;flex-direction:column;gap:11px}.insight{display:flex;gap:10px;align-items:flex-start;font-size:11px;line-height:1.45}.insight-icon{width:30px;height:30px;border-radius:9px;background:#eaf7ed;display:grid;place-items:center;flex:none}.link-btn{margin-top:auto;width:100%;background:#fff;border:1px solid #dbe3ef;border-radius:7px;padding:8px;color:#2563eb;font-size:11px;cursor:pointer}
+.bottom{display:grid;grid-template-columns:1fr 1.35fr 1.15fr;gap:18px}.customer{display:flex;align-items:center;gap:20px}.customer .donut{width:115px;height:115px;background:conic-gradient(#2563eb 0 61.1%,#36b76a 61.1%)}.customer .donut:after{width:57px;height:57px;left:29px;top:29px}.weekday{height:160px;display:flex;align-items:flex-end;gap:16px;padding:5px 8px 25px;border-bottom:1px solid #e7ebf2}.day{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}.day-bar{width:28px;background:#43b96d;border-radius:4px 4px 0 0}.day label{font-size:10px;color:#71809a}
+.great{display:flex;align-items:center;gap:18px;background:linear-gradient(110deg,#f3fff6,#fff);}.growth-graphic{font-size:52px}.great h2{font-size:18px;margin-bottom:8px}.great p{font-size:12px;color:#64728b;line-height:1.5}.primary{margin-top:13px;background:#2563eb;color:white;border:0;border-radius:7px;padding:9px 14px;font-size:11px;cursor:pointer}
+.hidden{display:none}
+.toast{position:fixed;right:24px;bottom:24px;background:#14233c;color:#fff;padding:12px 17px;border-radius:9px;font-size:12px;opacity:0;transform:translateY(15px);transition:.25s;z-index:30}.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:1150px){.kpis{grid-template-columns:repeat(3,1fr)}.lower,.bottom{grid-template-columns:1fr 1fr}.grid-main{grid-template-columns:1fr}.great{grid-column:1/-1}}
+@media(max-width:800px){.sidebar{width:64px;padding:15px 8px}.brand h2,.nav span:not(.ico),.logout span{display:none}.brand-icon{width:44px;height:44px}.nav button,.logout{justify-content:center}.main{margin-left:64px;width:calc(100% - 64px);padding:15px}.topbar{align-items:flex-start;gap:12px}.actions{flex-direction:column}.kpis{grid-template-columns:1fr 1fr}.lower,.bottom{grid-template-columns:1fr}}
+@media(max-width:520px){.kpis{grid-template-columns:1fr}.title h1{font-size:21px}.topbar{flex-direction:column}.actions{width:100%;flex-direction:row}.control{flex:1}.products{flex-direction:column;align-items:flex-start}}
+
+.status{padding:4px 7px;border-radius:6px;font-size:10px}
+.status.completed{background:#e8f8ed;color:#159447}
+.status.preparing{background:#fff2df;color:#c87500}
+.status.pending{background:#eaf2ff;color:#2563eb}
+.status.cancelled{background:#ffe9e9;color:#d93030}
+.orders-table{min-height:292px}
+.orders-table .panel-head{margin-bottom:8px}
+
+.import-banner{display:flex;justify-content:space-between;align-items:center;gap:15px;background:#eef5ff;border:1px solid #d7e5fb;border-radius:12px;padding:12px 15px;margin-bottom:18px;color:#243653;font-size:12px}
+.import-banner b{display:block;font-size:13px;margin-bottom:3px}.import-banner span{color:#71809a}.import-banner.loaded{background:#eefbf2;border-color:#d8f0df}
+.empty{height:180px;display:grid;place-items:center;color:#8a95a8;font-size:12px;text-align:center}
+.modal-backdrop{position:fixed;inset:0;background:#0c183080;display:grid;place-items:center;padding:20px;z-index:100}
+.modal{width:min(760px,100%);max-height:90vh;overflow:auto;background:white;border-radius:16px;box-shadow:0 25px 80px #0b173366;padding:22px}
+.small-modal{width:min(450px,100%)}.modal-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px}.modal h2{font-size:20px}.modal-head p{font-size:12px;color:#71809a;margin-top:5px}.modal-close{border:0;background:#f0f3f8;width:32px;height:32px;border-radius:8px;font-size:20px;cursor:pointer}.mapping-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.mapping-grid label,.small-modal>label{display:grid;gap:6px;font-size:12px;color:#59677e}.mapping-grid small{color:#9aa4b5}.mapping-grid select,.small-modal select{width:100%;padding:9px;border:1px solid #dce3ed;border-radius:8px;background:#fff;color:#263650}.modal-note{margin-top:16px;padding:11px;border-radius:9px;background:#f7f9fc;color:#71809a;font-size:11px;line-height:1.5}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+@media(max-width:650px){.mapping-grid{grid-template-columns:1fr}.import-banner{align-items:flex-start;flex-direction:column}.import-banner button{width:100%}}
+    
+/* ================================
+   PROFIT LENS AI CHATBOT
+================================ */
+
+#profitLensChatbot{
+  position:fixed;
+  right:25px;
+  bottom:25px;
+  width:380px;
+  height:560px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:0 15px 45px #101d3340;
+  z-index:9999;
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.chatbot-header{
+  background:linear-gradient(135deg,#101d33,#2563eb);
+  color:white;
+  padding:15px 17px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.chatbot-title{
+  font-size:15px;
+  font-weight:700;
+}
+
+.chatbot-subtitle{
+  font-size:10px;
+  opacity:.75;
+  margin-top:3px;
+}
+
+.chatbot-close{
+  border:0;
+  background:transparent;
+  color:white;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.chatbot-messages{
+  flex:1;
+  overflow-y:auto;
+  padding:15px;
+  background:#f6f8fc;
+}
+
+.chat-message{
+  max-width:85%;
+  padding:10px 12px;
+  border-radius:12px;
+  margin-bottom:10px;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.chat-message.bot{
+  background:white;
+  border:1px solid var(--border);
+  color:var(--text);
+}
+
+.chat-message.user{
+  background:#2563eb;
+  color:white;
+  margin-left:auto;
+}
+
+.chatbot-suggestions{
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  padding:8px;
+  border-top:1px solid var(--border);
+  background:white;
+}
+
+.chatbot-suggestions button{
+  white-space:nowrap;
+  border:1px solid #d8dfeb;
+  background:white;
+  border-radius:20px;
+  padding:6px 10px;
+  font-size:10px;
+  cursor:pointer;
+}
+
+.chatbot-suggestions button:hover{
+  background:#eef5ff;
+  border-color:#2563eb;
+}
+
+.chatbot-input{
+  display:flex;
+  gap:7px;
+  padding:10px;
+  border-top:1px solid var(--border);
+  background:white;
+}
+
+.chatbot-input input{
+  flex:1;
+  border:1px solid #d8dfeb;
+  border-radius:8px;
+  padding:9px;
+  font-size:12px;
+  outline:none;
+}
+
+.chatbot-input button{
+  border:0;
+  background:#2563eb;
+  color:white;
+  border-radius:8px;
+  padding:0 13px;
+  cursor:pointer;
+}
+
+.chatbot-input button:hover{
+  background:#1d4ed8;
+}
+
+.chatbot-launcher{
+  position:fixed;
+  right:25px;
+  bottom:25px;
+  width:58px;
+  height:58px;
+  border:0;
+  border-radius:50%;
+  background:#2563eb;
+  color:white;
+  font-size:24px;
+  cursor:pointer;
+  box-shadow:0 8px 25px #101d3340;
+  z-index:9998;
+}
+
+.chatbot-launcher:hover{
+  transform:scale(1.05);
+}
+
+.chat-analysis{
+  background:#f7f9fc;
+  border-radius:8px;
+  padding:8px;
+  margin-top:6px;
+}
+
+.chat-analysis b{
+  color:#101d33;
+}
+
+.chat-positive{
+  color:#16a34a;
+}
+
+.chat-negative{
+  color:#ef4444;
+}
+
+.chat-warning{
+  color:#f59e0b;
+}
+
+@media(max-width:520px){
+  #profitLensChatbot{
+    right:10px;
+    bottom:10px;
+    width:calc(100% - 20px);
+    height:520px;
+  }
+
+  .chatbot-launcher{
+    right:15px;
+    bottom:15px;
+  }
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon">▣</div>
+    <h2>Profit Lens</h2>
+  </div>
+  <nav class="nav">
+    <button class="active" data-page="Overview"><span class="ico">▦</span><span>Overview</span></button>
+    <button data-page="Orders"><span class="ico">▣</span><span>Orders</span></button>
+    <button data-page="Customers"><span class="ico">♙</span><span>Customers</span></button>
+    <button data-page="Products"><span class="ico">◇</span><span>Products</span></button>
+    <button data-page="Areas"><span class="ico">⌖</span><span>Areas</span></button>
+    <button data-page="Reports"><span class="ico">▥</span><span>Reports</span></button>
+    <button data-page="Insights"><span class="ico">✦</span><span>Insights</span></button>
+    <button data-page="Settings"><span class="ico">⚙</span><span>Settings</span></button>
+  </nav>
+  <button class="logout" onclick="showToast('Logout clicked')"><span class="ico">↪</span><span>Logout</span></button>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div class="title">
+      <h1 id="pageTitle">Sales Analytics Dashboard</h1>
+      <p id="pageSubtitle">Track your business performance and grow smarter</p>
+    </div>
+    <div class="actions">
+      <button class="control" id="uploadBtn">⬆ Import Orders</button>
+      <input type="file" id="fileInput" accept=".csv,.json,text/csv,application/json" hidden>
+      <button class="control" id="dateBtn"> 13-10-2026　▣</button>
+      <button class="control" id="filterBtn">⚱ Filters</button>
+    </div>
+  </header>
+  <div id="importStatus"></div><div id="app"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+<!-- PROFIT LENS AI CHATBOT -->
+
+<button class="chatbot-launcher" id="chatbotLauncher">
+  ✦
+</button>
+
+<div id="profitLensChatbot">
+
+  <div class="chatbot-header">
+
+    <div>
+      <div class="chatbot-title">
+        Profit Lens AI
+      </div>
+
+      <div class="chatbot-subtitle">
+        ML-powered sales assistant
+      </div>
+    </div>
+
+    <button class="chatbot-close" id="chatbotClose">
+      ×
+    </button>
+
+  </div>
+
+  <div
+    class="chatbot-messages"
+    id="chatbotMessages"
+  >
+
+    <div class="chat-message bot">
+
+      Hello! 👋<br><br>
+
+      I'm your Profit Lens AI assistant.
+
+      I can analyse your imported food-delivery
+      data and find:
+
+      <br><br>
+
+      • Best products<br>
+      • Areas with high cancellations<br>
+      • Customer sentiment<br>
+      • Revenue patterns<br>
+      • Products worth promoting<br>
+      • Business problems and improvements
+
+      <br><br>
+
+      Import your data and ask me anything.
+
+    </div>
+
+  </div>
+
+  <div class="chatbot-suggestions">
+
+    <button data-question="Which product should I promote?">
+      Promote
+    </button>
+
+    <button data-question="Where are cancellations highest?">
+      Cancellations
+    </button>
+
+    <button data-question="What are customers saying?">
+      Reviews
+    </button>
+
+    <button data-question="What should I improve?">
+      Improve
+    </button>
+
+  </div>
+
+  <div class="chatbot-input">
+
+    <input
+      type="text"
+      id="chatbotInput"
+      placeholder="Ask about your sales..."
+    >
+
+    <button id="chatbotSend">
+      Send
+    </button>
+
+  </div>
+
+</div>
+<script>
+/*
+  BizInsight - data-driven dashboard
+  Supported import formats:
+  - CSV exported from a food-delivery platform
+  - JSON array of order objects
+
+  The importer tries to recognize common column names automatically.
+  Users can also map columns manually after selecting a file.
+*/
+
+const STORAGE_KEY = "bizinsight_orders_v1";
+
+const data = {
+  overview:{title:"Sales Analytics Dashboard",subtitle:"Track your business performance and grow smarter"},
+  orders:{title:"Orders Analytics",subtitle:"Monitor order volume, timing, status and value"},
+  customers:{title:"Customer Analytics",subtitle:"Understand who your customers are and how they buy"},
+  products:{title:"Product Analytics",subtitle:"Find your best and worst performing products"},
+  areas:{title:"Area Analytics",subtitle:"Discover where your customers are ordering from"},
+  reports:{title:"Reports",subtitle:"Generate and review detailed business reports"},
+  insights:{title:"Business Insights",subtitle:"Actionable observations generated from your sales data"},
+  settings:{title:"Dashboard Settings",subtitle:"Configure how your business analytics dashboard works"}
+};
+
+let currentPage = "overview";
+let importedOrders = [];
+let rawRows = [];
+let sourceName = "";
+let mapping = {};
+let activeFilters = {area:"all", product:"all"};
+
+const fieldDefinitions = {
+  orderId:["order id","order_id","orderid","order number","order no","id"],
+  date:["date","order date","order_date","created at","created_at","datetime","timestamp"],
+  customer:["customer","customer name","customer_name","name","user","user name"],
+  area:["area","locality","location","delivery area","delivery locality","address area","zone","neighborhood","neighbourhood"],
+  product:["product","product name","item","item name","dish","dish name","menu item"],
+  category:["category","product category","item category"],
+  quantity:["quantity","qty","units","item quantity"],
+  amount:["amount","total","order amount","order value","sales","revenue","net amount","grand total","price","value"],
+  status:["status","order status","order_status"],
+  source:["source","platform","app","channel","order source"],
+  time:["time","order time","order_time","created time"]
+};
+
+function card(title,value,change,icon) {
+  return `<div class="card kpi"><div class="kpi-icon">${icon}</div><div><div class="kpi-label">${title}</div><div class="kpi-value">${value}</div><div class="growth">${change}</div></div></div>`;
+}
+
+function panel(title,body,extra="") {
+  return `<div class="card panel ${extra}"><div class="panel-head"><h3>${title}</h3></div>${body}</div>`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+
+function normalizeKey(s) {
+  return String(s ?? "").trim().toLowerCase().replace(/[_-]+/g," ").replace(/\s+/g," ");
+}
+
+function parseMoney(value) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  let s = String(value ?? "").trim();
+  if (!s) return 0;
+  // Handles ₹1,234.50, Rs 1234, 1,234.50, etc.
+  s = s.replace(/[₹$€£,\s]/g,"").replace(/rs\.?/ig,"");
+  const n = parseFloat(s.replace(/[^0-9.-]/g,""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function parseQuantity(value) {
+  const n = parseFloat(String(value ?? "").replace(/[^0-9.-]/g,""));
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
+function getCell(row, key) {
+  const source = mapping[key];
+  if (!source) return "";
+  return row[source] ?? "";
+}
+
+function autoMap(headers) {
+  const normalized = headers.map(h => ({original:h, normalized:normalizeKey(h)}));
+  const result = {};
+  Object.entries(fieldDefinitions).forEach(([field, aliases]) => {
+    const found = normalized.find(x => aliases.includes(x.normalized));
+    if (found) result[field] = found.original;
+  });
+
+  // Flexible contains-based fallbacks.
+  if (!result.amount) {
+    const x = normalized.find(h => /amount|total|revenue|sales|value|price/.test(h.normalized));
+    if (x) result.amount = x.original;
+  }
+  if (!result.area) {
+    const x = normalized.find(h => /area|locality|location|zone|neighbou?r/.test(h.normalized));
+    if (x) result.area = x.original;
+  }
+  if (!result.product) {
+    const x = normalized.find(h => /product|item|dish|menu/.test(h.normalized));
+    if (x) result.product = x.original;
+  }
+  if (!result.date) {
+    const x = normalized.find(h => /date|created|timestamp/.test(h.normalized));
+    if (x) result.date = x.original;
+  }
+  if (!result.customer) {
+    const x = normalized.find(h => /customer|user|name/.test(h.normalized));
+    if (x) result.customer = x.original;
+  }
+  return result;
+}
+
+function csvToRows(text) {
+  const rows = [];
+  let row = [], cell = "", quoted = false;
+  for (let i=0;i<text.length;i++) {
+    const ch = text[i], next = text[i+1];
+    if (ch === '"' && quoted && next === '"') { cell += '"'; i++; continue; }
+    if (ch === '"') { quoted = !quoted; continue; }
+    if (ch === ',' && !quoted) { row.push(cell); cell=""; continue; }
+    if ((ch === '\n' || ch === '\r') && !quoted) {
+      if (ch === '\r' && next === '\n') i++;
+      row.push(cell); cell="";
+      if (row.some(v => String(v).trim() !== "")) rows.push(row);
+      row=[];
+      continue;
+    }
+    cell += ch;
+  }
+  if (cell !== "" || row.length) { row.push(cell); if (row.some(v => String(v).trim() !== "")) rows.push(row); }
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => String(h).trim());
+  return rows.slice(1).map(values => Object.fromEntries(headers.map((h,i)=>[h,(values[i] ?? "").trim()])));
+}
+
+function normalizeOrders(rows) {
+  return rows.map((row,index) => {
+    const rawDate = getCell(row,"date");
+    let dateObj = rawDate ? new Date(rawDate) : null;
+    if (!dateObj || isNaN(dateObj.getTime())) {
+      // Try DD/MM/YYYY or DD-MM-YYYY.
+      const m = String(rawDate).match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/);
+      if (m) {
+        let y = Number(m[3]); if (y < 100) y += 2000;
+        dateObj = new Date(y,Number(m[2])-1,Number(m[1]));
+      }
+    }
+    const amount = parseMoney(getCell(row,"amount"));
+    const quantity = parseQuantity(getCell(row,"quantity"));
+    const customer = String(getCell(row,"customer") || "Unknown customer").trim();
+    const area = String(getCell(row,"area") || "Unknown area").trim();
+    const product = String(getCell(row,"product") || "Unknown product").trim();
+    const status = String(getCell(row,"status") || "Completed").trim();
+    const source = String(getCell(row,"source") || sourceName || "Imported").trim();
+    const timeRaw = String(getCell(row,"time") || "").trim();
+
+    let hour = null;
+    if (timeRaw) {
+      const tm = timeRaw.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+      if (tm) {
+        hour = Number(tm[1]);
+        if (tm[3]) {
+          const ap = tm[3].toLowerCase();
+          if (ap === "pm" && hour !== 12) hour += 12;
+          if (ap === "am" && hour === 12) hour = 0;
+        }
+      }
+    }
+    if (hour === null && dateObj && !isNaN(dateObj)) hour = dateObj.getHours();
+
+    return {
+      id:String(getCell(row,"orderId") || `IMP-${index+1}`),
+      date:dateObj && !isNaN(dateObj) ? dateObj : null,
+      customer, area, product, category:String(getCell(row,"category") || "Other"),
+      quantity, amount, status, source, hour
+    };
+  }).filter(o => o.amount >= 0);
+}
+
+function formatMoney(n) {
+  return "₹" + Math.round(n).toLocaleString("en-IN");
+}
+function formatCompactMoney(n) {
+  if (n >= 10000000) return "₹" + (n/10000000).toFixed(1) + "Cr";
+  if (n >= 100000) return "₹" + (n/100000).toFixed(1) + "L";
+  if (n >= 1000) return "₹" + (n/1000).toFixed(1) + "K";
+  return formatMoney(n);
+}
+function pct(n) { return Number.isFinite(n) ? n.toFixed(1) + "%" : "0%"; }
+
+function groupBy(orders,key) {
+  const map = new Map();
+  orders.forEach(o => {
+    const k = String(o[key] || "Unknown");
+    const old = map.get(k) || {name:k,orders:0,revenue:0,qty:0};
+    old.orders += 1; old.revenue += o.amount; old.qty += o.quantity;
+    map.set(k,old);
+  });
+  return [...map.values()].sort((a,b)=>b.orders-a.orders);
+}
+
+function filteredOrders() {
+  return importedOrders.filter(o =>
+    (activeFilters.area === "all" || o.area === activeFilters.area) &&
+    (activeFilters.product === "all" || o.product === activeFilters.product)
+  );
+}
+
+function dataBanner() {
+  if (!importedOrders.length) return `
+    <div class="import-banner">
+      <div><b>No external order data loaded.</b><span>Import a CSV/JSON export from your food-delivery platform to replace the demo data.</span></div>
+      <button class="primary" id="bannerUpload">⬆ Import Data</button>
+    </div>`;
+  return `
+    <div class="import-banner loaded">
+      <div><b>Live imported dataset: ${escapeHtml(sourceName)}</b>
+      <span>${importedOrders.length.toLocaleString("en-IN")} orders loaded in this browser.</span></div>
+      <div style="display:flex;gap:8px"><button class="control" id="clearData">Clear</button><button class="primary" id="reimport">Replace Data</button></div>
+    </div>`;
+}
+
+function overviewPage() {
+  const orders=filteredOrders();
+  const revenue=orders.reduce((s,o)=>s+o.amount,0);
+  const customers=new Set(orders.map(o=>o.customer).filter(x=>x!=="Unknown customer")).size;
+  const aov=orders.length ? revenue/orders.length : 0;
+  const areas=groupBy(orders,"area").slice(0,5);
+  const products=groupBy(orders,"product").slice(0,5);
+  return `${dataBanner()}
+  <section class="kpis">
+    ${card("Total Revenue",formatMoney(revenue),`${orders.length ? "Based on imported orders" : "Waiting for data"}`,"₹")}
+    ${card("Total Orders",orders.length.toLocaleString("en-IN"),`${new Set(orders.map(o=>o.source)).size || 0} source(s)`,"🛍")}
+    ${card("Average Order Value",formatMoney(aov),"Calculated from imported data","↗")}
+    ${card("Total Customers",customers.toLocaleString("en-IN"),"Unique customer names","♙")}
+    ${card("Areas Served",new Set(orders.map(o=>o.area)).size.toLocaleString("en-IN"),"Unique delivery areas","⌖")}
+  </section>
+  <section class="grid-main">
+    ${panel("Revenue Trend",`<div class="panel-head" style="margin-top:-5px"><span></span><select class="small-select" id="revenueRange"><option>Monthly</option><option>Weekly</option><option>Daily</option></select></div><div class="chart">${revenueChart(orders)}</div>`)}
+    ${panel("Orders by Time of Day",`<div class="bar-chart" id="timeChart"></div>`)}
+  </section>
+  <section class="lower">
+    ${areaDataPanel(areas)}
+    ${productDataPanel(products)}
+    ${dynamicInsightPanel(orders,areas,products)}
+  </section>
+  <section class="bottom">
+    ${customerDataPanel(orders)}
+    ${weekdayDataPanel(orders)}
+    <div class="card panel great"><div class="growth-graphic">↗</div><div><h2>${orders.length ? "Data Loaded! 🎉" : "Ready for Your Data"}</h2><p>${orders.length ? "Your dashboard is now calculated from your imported order data." : "Import your food-delivery order export to start analyzing your business."}</p><button class="primary" id="detailReport">View Reports</button></div></div></section>`;
+}
+
+function revenueChart(orders) {
+  if (!orders.length) return `<div style="height:100%;display:grid;place-items:center;color:#71809a;font-size:13px">Import order data to see your real revenue trend.</div>`;
+  const map=new Map();
+  orders.forEach(o=>{
+    const key=o.date && !isNaN(o.date) ? o.date.toLocaleDateString("en-IN",{month:"short",year:"2-digit"}) : "Unknown";
+    map.set(key,(map.get(key)||0)+o.amount);
+  });
+  const vals=[...map.entries()].slice(-7);
+  const max=Math.max(...vals.map(x=>x[1]),1);
+  const points=vals.map((x,i)=>`${45+i*(625/Math.max(vals.length-1,1))} ${190-(x[1]/max*160)}`).join(" L");
+  const areaPoints=vals.map((x,i)=>`${45+i*(625/Math.max(vals.length-1,1))} ${190-(x[1]/max*160)}`).join(" L");
+  const circles=vals.map((x,i)=>`<circle class="point" cx="${45+i*(625/Math.max(vals.length-1,1))}" cy="${190-(x[1]/max*160)}" r="4"/>`).join("");
+  const labels=vals.map((x,i)=>`<text x="${38+i*(625/Math.max(vals.length-1,1))}" y="214" class="axis">${escapeHtml(x[0])}</text>`).join("");
+  return `<svg viewBox="0 0 700 220" preserveAspectRatio="none">
+    <line x1="35" y1="30" x2="685" y2="30" class="gridline"/><line x1="35" y1="80" x2="685" y2="80" class="gridline"/><line x1="35" y1="130" x2="685" y2="130" class="gridline"/><line x1="35" y1="180" x2="685" y2="180" class="gridline"/>
+    <text x="0" y="34" class="axis">${escapeHtml(formatCompactMoney(max))}</text><text x="0" y="184" class="axis">₹0</text>
+    <path class="area" d="M45 ${190-(vals[0][1]/max*160)} L${areaPoints.substring(areaPoints.indexOf(" ")+1)} L670 195 L45 195 Z"/>
+    <path class="line" d="M${points}"/>${circles}${labels}</svg>`;
+}
+
+function areaDataPanel(areas) {
+  const body=areas.length?`<table class="table"><thead><tr><th>Area</th><th>Orders</th><th>Revenue</th><th>AOV</th></tr></thead><tbody>${areas.map((a,i)=>`<tr><td><span class="rank">${i+1}</span> ${escapeHtml(a.name)}</td><td>${a.orders}</td><td>${formatMoney(a.revenue)}</td><td>${formatMoney(a.revenue/a.orders)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">No area data available.</div>`;
+  return panel("Top Areas by Orders",body+`<button class="link-btn" onclick="navigate('areas')">View all areas　›</button>`);
+}
+
+function productDataPanel(products) {
+  if (!products.length) return panel("Best Selling Products",`<div class="empty">No product data available.</div>`);
+  const colors=["#2563eb","#36b76a","#f59e0b","#8b5cf6","#cbd2dd"];
+  const total=products.reduce((s,p)=>s+p.orders,0)||1;
+  let cursor=0;
+  const stops=products.map((p,i)=>{const start=cursor;cursor+=p.orders/total*100;return `${colors[i]} ${start}% ${cursor}%`;}).join(",");
+  return panel("Best Selling Products",`<div class="products"><div class="donut" style="background:conic-gradient(${stops})"></div><div class="legend">${products.map((p,i)=>`<div><span style="background:${colors[i]}"></span>${escapeHtml(p.name)}　${p.orders} (${pct(p.orders/total*100)})</div>`).join("")}</div></div><button class="link-btn" onclick="navigate('products')">View all products　›</button>`);
+}
+
+function dynamicInsightPanel(orders,areas,products) {
+  let items=[];
+  if(areas[0]) items.push(`📍 <b>${escapeHtml(areas[0].name)}</b> has the highest order frequency with ${areas[0].orders} orders.`);
+  if(areas[0] && areas[1] && areas[1].revenue/areas[1].orders > areas[0].revenue/areas[0].orders) items.push(`₹ <b>${escapeHtml(areas[1].name)}</b> has a higher average order value than the top-volume area.`);
+  if(products[0]) items.push(`🍛 <b>${escapeHtml(products[0].name)}</b> is your most ordered product.`);
+  const peak=peakHour(orders); if(peak!==null) items.push(`◷ Your busiest ordering hour is around <b>${formatHour(peak)}</b>.`);
+  if(!items.length) items=["Import your order data to generate business insights automatically."];
+  return panel("Business Insights",`<div class="insights">${items.slice(0,4).map(x=>`<div class="insight"><div class="insight-icon">✦</div><div>${x}</div></div>`).join("")}</div><button class="link-btn" onclick="navigate('insights')">View all insights　›</button>`);
+}
+
+function customerDataPanel(orders) {
+  const counts=new Map(); orders.forEach(o=>counts.set(o.customer,(counts.get(o.customer)||0)+1));
+  const repeat=[...counts.values()].filter(v=>v>1).length;
+  const unique=counts.size;
+  const repeatPct=unique?repeat/unique*100:0;
+  return panel("New vs Returning Customers",`<div class="customer"><div class="donut" style="background:conic-gradient(#2563eb 0 ${100-repeatPct}%,#36b76a ${100-repeatPct}% 100%)"></div><div class="legend"><div><span style="background:#2563eb"></span>New Customers<br><b>${Math.max(unique-repeat,0)} (${pct(100-repeatPct)})</b></div><div><span style="background:#36b76a"></span>Returning Customers<br><b>${repeat} (${pct(repeatPct)})</b></div></div></div>`);
+}
+
+function weekdayDataPanel(orders) {
+  const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], vals=[0,0,0,0,0,0,0];
+  orders.forEach(o=>{if(o.date&&!isNaN(o.date)) vals[o.date.getDay()]++;});
+  const max=Math.max(...vals,1);
+  return panel("Orders by Day of Week",`<div class="weekday">${vals.slice(1).concat(vals[0]).map((v,i)=>`<div class="day"><div class="day-bar" style="height:${Math.max(v/max*75,2)}%"></div><label>${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i]}</label></div>`).join("")}</div>`);
+}
+
+function peakHour(orders) {
+  const counts=Array(24).fill(0); let found=false;
+  orders.forEach(o=>{if(Number.isInteger(o.hour)){counts[o.hour]++;found=true;}});
+  if(!found)return null;
+  return counts.indexOf(Math.max(...counts));
+}
+function formatHour(h) {
+  const ap=h>=12?"PM":"AM", hour=h%12||12;
+  return `${hour} ${ap}`;
+}
+
+function ordersPage() {
+  const orders=filteredOrders(), completed=orders.filter(o=>/complete|deliver|success/i.test(o.status)).length, pending=orders.filter(o=>/pending|prepar|process/i.test(o.status)).length, cancelled=orders.filter(o=>/cancel|reject/i.test(o.status)).length;
+  const rows=orders.slice(-10).reverse();
+  return `${dataBanner()}<section class="kpis">${card("Total Orders",orders.length,"Imported order rows","🛍")}${card("Completed",completed,pct(orders.length?completed/orders.length*100:0)+" completion","✓")}${card("Pending",pending,"Needs attention","◷")}${card("Cancelled",cancelled,"Cancelled orders","×")}${card("Avg. Order",formatMoney(orders.length?orders.reduce((s,o)=>s+o.amount,0)/orders.length:0),"From imported data","₹")}</section>
+  <section class="lower">${panel("Recent Imported Orders",rows.length?`<table class="table"><thead><tr><th>Order</th><th>Customer</th><th>Area</th><th>Amount</th><th>Status</th></tr></thead><tbody>${rows.map(o=>`<tr><td><b>${escapeHtml(o.id)}</b></td><td>${escapeHtml(o.customer)}</td><td>${escapeHtml(o.area)}</td><td>${formatMoney(o.amount)}</td><td>${escapeHtml(o.status)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">No imported orders yet.</div>`,"orders-table")}
+  ${panel("Order Sources",sourceBreakdown(orders))}
+  ${panel("Peak Order Window",`<div class="insights"><div class="insight"><div class="insight-icon">◷</div><div>${peakHour(orders)!==null?`Busiest hour: <b>${formatHour(peakHour(orders))}</b>`:"Import date/time columns to calculate your peak hour."}</div></div></div>`)}</section>`;
+}
+
+function sourceBreakdown(orders) {
+  const groups=groupBy(orders,"source"), total=orders.length||1;
+  if(!groups.length)return `<div class="empty">No source/platform column detected.</div>`;
+  return `<div class="insights">${groups.slice(0,6).map(g=>`<div class="insight"><div class="insight-icon">📱</div><div><b>${escapeHtml(g.name)}</b><br>${g.orders} orders · ${pct(g.orders/total*100)}</div></div>`).join("")}</div>`;
+}
+
+function customersPage() {
+  const orders=filteredOrders(), counts=new Map();
+  orders.forEach(o=>counts.set(o.customer,(counts.get(o.customer)||0)+1));
+  const unique=counts.size, repeat=[...counts.values()].filter(v=>v>1).length, spend=[...orders.reduce((m,o)=>m.set(o.customer,(m.get(o.customer)||0)+o.amount),new Map())].sort((a,b)=>b[1]-a[1]).slice(0,5);
+  return `${dataBanner()}<section class="kpis">${card("Total Customers",unique.toLocaleString("en-IN"),"Unique imported names","♙")}${card("New Customers",Math.max(unique-repeat,0),"One-order customers","＋")}${card("Returning",repeat,"2+ order customers","↻")}${card("Repeat Rate",pct(unique?repeat/unique*100:0),"Customer retention","↗")}${card("Avg. Spend",formatMoney(unique?orders.reduce((s,o)=>s+o.amount,0)/unique:0),"Per customer","₹")}</section>
+  <section class="lower">${panel("Top Customers",spend.length?`<table class="table"><thead><tr><th>Customer</th><th>Orders</th><th>Spend</th></tr></thead><tbody>${spend.map(([name,total])=>`<tr><td>${escapeHtml(name)}</td><td>${counts.get(name)}</td><td>${formatMoney(total)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">No customer column detected.</div>`)}
+  ${customerDataPanel(orders)}
+  ${panel("Customer Insights",`<div class="insights"><div class="insight"><div class="insight-icon">↻</div><div><b>${repeat}</b> customers have ordered more than once.</div></div><div class="insight"><div class="insight-icon">₹</div><div>Average spend per unique customer is <b>${formatMoney(unique?orders.reduce((s,o)=>s+o.amount,0)/unique:0)}</b>.</div></div></div>`)}</section>`;
+}
+
+function productsPage() {
+  const orders=filteredOrders(), products=groupBy(orders,"product"), total=orders.reduce((s,o)=>s+o.amount,0);
+  return `${dataBanner()}<section class="kpis">${card("Products",products.length,"Unique products","◇")}${card("Items Sold",orders.reduce((s,o)=>s+o.quantity,0).toLocaleString("en-IN"),"Imported quantity","▦")}${card("Top Product",products[0]?.name||"—",products[0]?products[0].orders+" orders":"Waiting for data","★")}${card("Top Product Revenue",formatMoney(products[0]?.revenue||0),"Highest product revenue","₹")}${card("Total Product Revenue",formatMoney(total),"Imported sales","↗")}</section>
+  <section class="lower">${panel("Product Performance",products.length?`<table class="table"><thead><tr><th>Product</th><th>Orders</th><th>Revenue</th><th>Share</th></tr></thead><tbody>${products.slice(0,10).map(p=>`<tr><td><b>${escapeHtml(p.name)}</b></td><td>${p.orders}</td><td>${formatMoney(p.revenue)}</td><td>${pct(p.orders/(orders.length||1)*100)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">No product column detected.</div>`,"orders-table")}${productDataPanel(products.slice(0,5))}${panel("Product Insights",`<div class="insights"><div class="insight"><div class="insight-icon">★</div><div>${products[0]?`<b>${escapeHtml(products[0].name)}</b> is your most ordered product.`:"Import product names to generate product insights."}</div></div><div class="insight"><div class="insight-icon">₹</div><div>${products[0]?`It generated <b>${formatMoney(products[0].revenue)}</b> in imported sales.`:"Revenue insights will appear here."}</div></div></div>`)}</section>`;
+}
+
+function areasPage() {
+  const orders=filteredOrders(), areas=groupBy(orders,"area");
+  const top=areas[0], highestAOV=[...areas].sort((a,b)=>(b.revenue/b.orders)-(a.revenue/a.orders))[0];
+  return `${dataBanner()}<section class="kpis">${card("Active Areas",areas.length,"Unique delivery areas","⌖")}${card("Top Area",top?.name||"—",top?top.orders+" orders":"Waiting for data","1")}${card("Top Area Revenue",formatMoney(top?.revenue||0),"Highest area revenue","₹")}${card("Highest AOV",highestAOV?formatMoney(highestAOV.revenue/highestAOV.orders):"₹0",highestAOV?.name||"Waiting for data","↗")}${card("Area Orders",orders.length.toLocaleString("en-IN"),"Across all areas","▦")}</section>
+  <section class="lower">${panel("Area Performance",areas.length?`<table class="table"><thead><tr><th>Area</th><th>Orders</th><th>Revenue</th><th>AOV</th></tr></thead><tbody>${areas.slice(0,12).map(a=>`<tr><td><b>${escapeHtml(a.name)}</b></td><td>${a.orders}</td><td>${formatMoney(a.revenue)}</td><td>${formatMoney(a.revenue/a.orders)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">No area/locality column detected.</div>`,"orders-table")}
+  ${panel("Area Opportunities",`<div class="insights">${top?`<div class="insight"><div class="insight-icon">📍</div><div><b>${escapeHtml(top.name)}</b> has the highest order frequency.</div></div>`:""}${highestAOV?`<div class="insight"><div class="insight-icon">₹</div><div><b>${escapeHtml(highestAOV.name)}</b> has the highest average order value.</div></div>`:""}${!top?`<div class="empty">Import an area/locality column to generate opportunities.</div>`:""}</div>`)}
+  ${panel("Suggested Action",`<h2 style="font-size:19px;margin:10px 0">${highestAOV?"Target "+escapeHtml(highestAOV.name):"Target a high-value area"} 🎯</h2><p style="font-size:13px;color:#71809a;line-height:1.6">Use your imported order data to compare order frequency and average order value by locality. This can help decide where to advertise or offer promotions.</p>`)}</section>`;
+}
+
+function reportsPage() {
+  return `${dataBanner()}<section class="lower">${panel("Dataset Summary",`<div class="insights"><div class="insight"><div class="insight-icon">▤</div><div><b>${importedOrders.length.toLocaleString("en-IN")} orders</b><br>currently loaded</div></div><div class="insight"><div class="insight-icon">📱</div><div><b>${new Set(importedOrders.map(o=>o.source)).size}</b><br>source/platform value(s)</div></div><div class="insight"><div class="insight-icon">⌖</div><div><b>${new Set(importedOrders.map(o=>o.area)).size}</b><br>delivery areas</div></div></div>`)}
+  ${panel("Export Current Data",`<p style="font-size:12px;color:#71809a;line-height:1.6">Export the normalized dataset currently being used by the dashboard.</p><button class="primary" onclick="downloadNormalizedCSV()">Export CSV</button>`)}
+  ${panel("Report Generator",`<p style="font-size:12px;color:#71809a;line-height:1.6">Generate a summary from the imported data.</p><button class="primary" onclick="showToast('Report generated from imported data')">Generate Report</button>`)}</section>`;
+}
+
+function insightsPage() {
+  const orders=filteredOrders(), areas=groupBy(orders,"area"), products=groupBy(orders,"product"), peak=peakHour(orders);
+  const items=[];
+  if(areas[0]) items.push(["📍",`<b>${escapeHtml(areas[0].name)}</b> is your highest-volume area with ${areas[0].orders} orders.`]);
+  if(products[0]) items.push(["🍛",`<b>${escapeHtml(products[0].name)}</b> is your most ordered product with ${products[0].orders} orders.`]);
+  if(peak!==null) items.push(["◷",`Your busiest ordering hour is <b>${formatHour(peak)}</b>.`]);
+  if(orders.length) items.push(["₹",`Average order value across the imported dataset is <b>${formatMoney(orders.reduce((s,o)=>s+o.amount,0)/orders.length)}</b>.`]);
+  if(!items.length) items.push(["✦","Import your food-delivery data to generate automatic insights."]);
+  return `${dataBanner()}<section class="kpis">${card("Insights",orders.length?items.length:"—","Generated from your data","✦")}${card("Opportunities",areas.length?areas.length:"—","Areas to evaluate","★")}${card("Products",products.length||"—","Unique products","◇")}${card("Peak Hour",peak!==null?formatHour(peak):"—","From imported times","◷")}${card("Data Rows",orders.length.toLocaleString("en-IN"),"Analyzed rows","▤")}</section><section class="lower">${panel("Automatic Business Insights",`<div class="insights">${items.map(x=>`<div class="insight"><div class="insight-icon">${x[0]}</div><div>${x[1]}</div></div>`).join("")}</div>`)}${panel("What You Can Do Next",`<div class="insights"><div class="insight"><div class="insight-icon">📍</div><div>Find areas with high order frequency but low average order value.</div></div><div class="insight"><div class="insight-icon">🍽</div><div>Identify products that sell frequently and generate the most revenue.</div></div><div class="insight"><div class="insight-icon">◷</div><div>Plan staffing and promotions around your busiest ordering hours.</div></div></div>`)}${panel("Data Quality",`<div class="insights"><div class="insight"><div class="insight-icon">✓</div><div>Rows analyzed: <b>${orders.length}</b></div></div><div class="insight"><div class="insight-icon">!</div><div>Missing/unknown area values: <b>${orders.filter(o=>o.area==="Unknown area").length}</b></div></div><div class="insight"><div class="insight-icon">!</div><div>Missing/unknown product values: <b>${orders.filter(o=>o.product==="Unknown product").length}</b></div></div></div>`)}</section>`;
+}
+
+function settingsPage() {
+  return `${dataBanner()}<section class="lower">${panel("Business Settings",`<div style="display:grid;gap:15px"><label style="font-size:12px;color:#65738b">Business Name<input id="businessName" class="control" style="display:block;width:100%;margin-top:6px" value="${escapeHtml(localStorage.getItem("bizName")||"My Restaurant")}"></label><label style="font-size:12px;color:#65738b">Business Category<select class="control" style="display:block;width:100%;margin-top:6px"><option>Restaurant</option><option>Cloud Kitchen</option><option>Bakery</option><option>Grocery</option><option>Retail</option></select></label><label style="font-size:12px;color:#65738b">Currency<select class="control" style="display:block;width:100%;margin-top:6px"><option>INR — ₹</option><option>USD — $</option></select></label><button class="primary" onclick="saveSettings()">Save Changes</button></div>`)}
+  ${panel("Import Requirements",`<p style="font-size:12px;color:#71809a;line-height:1.6">The importer works best when your export contains columns for <b>Order ID, Date, Customer, Area/Locality, Product/Item, Amount, Status</b> and optionally <b>Time, Quantity, Category and Platform/Source</b>.</p><p style="font-size:12px;color:#71809a;line-height:1.6;margin-top:10px">Different delivery apps use different column names. BizInsight automatically maps common names and lets you correct the mapping before loading the data.</p>`)}
+  ${panel("Data Storage",`<p style="font-size:12px;color:#71809a;line-height:1.6">Imported data is stored locally in this browser using localStorage. Nothing is uploaded to a server by this demo.</p><button class="control" onclick="clearImportedData()">Delete Imported Data</button>`)}</section>`;
+}
+
+function saveSettings() {
+  localStorage.setItem("bizName",document.getElementById("businessName")?.value||"My Restaurant");
+  showToast("Business settings saved");
+}
+
+function render(page="overview") {
+  currentPage=page;
+  document.getElementById("pageTitle").textContent=data[page].title;
+  document.getElementById("pageSubtitle").textContent=data[page].subtitle;
+  const pages={overview:overviewPage,orders:ordersPage,customers:customersPage,products:productsPage,areas:areasPage,reports:reportsPage,insights:insightsPage,settings:settingsPage};
+  document.getElementById("app").innerHTML=pages[page]();
+  bindDynamicControls();
+}
+
+function bindDynamicControls() {
+  const bannerUpload=document.getElementById("bannerUpload");
+  if(bannerUpload) bannerUpload.onclick=()=>document.getElementById("fileInput").click();
+  const reimport=document.getElementById("reimport");
+  if(reimport) reimport.onclick=()=>document.getElementById("fileInput").click();
+  const clear=document.getElementById("clearData");
+  if(clear) clear.onclick=clearImportedData;
+  const report=document.getElementById("detailReport");
+  if(report) report.onclick=()=>navigate("reports");
+  const range=document.getElementById("revenueRange");
+  if(range) range.onchange=e=>showToast("Revenue range: "+e.target.value);
+  drawTimeChart();
+}
+
+function drawTimeChart() {
+  const chart=document.getElementById("timeChart");
+  if(!chart)return;
+  const values=Array(24).fill(0);
+  filteredOrders().forEach(o=>{if(Number.isInteger(o.hour))values[o.hour]++;});
+  const hasTime=values.some(v=>v>0);
+  if(!hasTime){chart.innerHTML=`<div style="height:100%;width:100%;display:grid;place-items:center;color:#71809a;font-size:12px">No time column detected.</div>`;return;}
+  const max=Math.max(...values,1);
+  chart.innerHTML="";
+  values.forEach((v,i)=>{
+    const wrap=document.createElement("div");wrap.className="bar-wrap";
+    const bar=document.createElement("div");bar.className="bar";bar.style.height=Math.max(v/max*90,2)+"%";bar.title=`${formatHour(i)}: ${v} orders`;
+    const label=document.createElement("div");label.className="bar-label";label.textContent=i%3===0?formatHour(i):"";
+    wrap.append(bar,label);chart.appendChild(wrap);
+  });
+}
+
+function navigate(page) {
+  document.querySelectorAll(".nav button").forEach(btn=>btn.classList.toggle("active",btn.dataset.page.toLowerCase()===page));
+  render(page);window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function showToast(msg) {
+  const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+/* ---------- IMPORT UI ---------- */
+function showMappingModal(headers, suggested) {
+  const fields=[
+    ["orderId","Order ID","optional"],["date","Date","recommended"],["customer","Customer","recommended"],
+    ["area","Area / Locality","recommended"],["product","Product / Item","recommended"],["category","Category","optional"],
+    ["quantity","Quantity","optional"],["amount","Amount / Revenue","recommended"],["status","Status","optional"],
+    ["source","Platform / Source","optional"],["time","Time","optional"]
+  ];
+  mapping={...suggested};
+  const modal=document.createElement("div");
+  modal.id="mappingModal";
+  modal.innerHTML=`<div class="modal-backdrop"><div class="modal">
+    <div class="modal-head"><div><h2>Map your delivery-app columns</h2><p>We detected ${headers.length} columns. Check the mapping before importing.</p></div><button class="modal-close" id="closeMap">×</button></div>
+    <div class="mapping-grid">${fields.map(([key,label,req])=>`<label><span>${label} <small>${req}</small></span><select data-map="${key}"><option value="">— Not available —</option>${headers.map(h=>`<option value="${escapeHtml(h)}" ${suggested[key]===h?"selected":""}>${escapeHtml(h)}</option>`).join("")}</select></label>`).join("")}</div>
+    <div class="modal-note"><b>Tip:</b> Amount should contain the final order value. If your app exports one row per item, Quantity can be used to analyze item volume.</div>
+    <div class="modal-actions"><button class="control" id="cancelMap">Cancel</button><button class="primary" id="confirmMap">Import ${rawRows.length.toLocaleString("en-IN")} rows</button></div>
+  </div></div>`;
+  document.body.appendChild(modal);
+  modal.querySelectorAll("[data-map]").forEach(s=>s.onchange=()=>mapping[s.dataset.map]=s.value);
+  document.getElementById("closeMap").onclick=()=>modal.remove();
+  document.getElementById("cancelMap").onclick=()=>modal.remove();
+  document.getElementById("confirmMap").onclick=()=>{
+    if(!mapping.amount){showToast("Please map the Amount / Revenue column");return;}
+    importedOrders=normalizeOrders(rawRows);
+    sourceName=sourceName || "Imported file";
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({sourceName,orders:importedOrders.map(o=>({...o,date:o.date?o.date.toISOString():null}))}));
+    modal.remove();
+    render(currentPage);
+    showToast(`${importedOrders.length.toLocaleString("en-IN")} orders imported`);
+  };
+}
+
+async function handleFile(file) {
+  if(!file)return;
+  sourceName=file.name;
+  try {
+    const text=await file.text();
+    if(file.name.toLowerCase().endsWith(".json")){
+      const parsed=JSON.parse(text);
+      rawRows=Array.isArray(parsed)?parsed:(Array.isArray(parsed.data)?parsed.data:[]);
+    } else {
+      rawRows=csvToRows(text);
+    }
+    if(!rawRows.length){showToast("No rows found in this file");return;}
+    const headers=[...new Set(rawRows.flatMap(r=>Object.keys(r)))];
+    showMappingModal(headers,autoMap(headers));
+  } catch(err) {
+    console.error(err);showToast("Could not read this file");
+  }
+}
+
+function clearImportedData() {
+  if(!confirm("Delete the imported dataset from this browser?"))return;
+  localStorage.removeItem(STORAGE_KEY);
+  importedOrders=[];sourceName="";rawRows=[];mapping={};
+  render(currentPage);showToast("Imported data cleared");
+}
+
+function loadStoredData() {
+  try {
+    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
+    if(saved?.orders?.length){
+      sourceName=saved.sourceName||"Stored dataset";
+      importedOrders=saved.orders.map(o=>({...o,date:o.date?new Date(o.date):null}));
+    }
+  } catch(e){console.warn("Stored data could not be loaded",e);}
+}
+
+function downloadNormalizedCSV() {
+  if(!importedOrders.length){showToast("No imported data to export");return;}
+  const headers=["Order ID","Date","Customer","Area","Product","Category","Quantity","Amount","Status","Platform","Time"];
+  const lines=[headers.join(",")];
+  importedOrders.forEach(o=>{
+    const vals=[o.id,o.date?o.date.toISOString():"",o.customer,o.area,o.product,o.category,o.quantity,o.amount,o.status,o.source,o.hour??""];
+    lines.push(vals.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(","));
+  });
+  const blob=new Blob([lines.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ProfitLens_normalized_orders.csv";a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ---------- FILTER PANEL ---------- */
+function showFilterPanel() {
+  const areas=[...new Set(importedOrders.map(o=>o.area))].filter(Boolean).sort();
+  const products=[...new Set(importedOrders.map(o=>o.product))].filter(Boolean).sort();
+  const modal=document.createElement("div");modal.id="filterModal";
+  modal.innerHTML=`<div class="modal-backdrop"><div class="modal small-modal"><div class="modal-head"><div><h2>Filter Dashboard</h2><p>These filters affect all analytics.</p></div><button class="modal-close" id="closeFilter">×</button></div>
+  <label>Area<select id="areaFilter"><option value="all">All areas</option>${areas.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("")}</select></label>
+  <label>Product<select id="productFilter"><option value="all">All products</option>${products.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("")}</select></label>
+  <div class="modal-actions"><button class="control" id="resetFilters">Reset</button><button class="primary" id="applyFilters">Apply Filters</button></div></div></div>`;
+  document.body.appendChild(modal);
+  modal.querySelector("#areaFilter").value=activeFilters.area;
+  modal.querySelector("#productFilter").value=activeFilters.product;
+  modal.querySelector("#closeFilter").onclick=()=>modal.remove();
+  modal.querySelector("#resetFilters").onclick=()=>{activeFilters={area:"all",product:"all"};modal.remove();render(currentPage);};
+  modal.querySelector("#applyFilters").onclick=()=>{activeFilters.area=modal.querySelector("#areaFilter").value;activeFilters.product=modal.querySelector("#productFilter").value;modal.remove();render(currentPage);};
+}
+
+/* ---------- SIDEBAR + TOP BAR ---------- */
+document.querySelectorAll(".nav button").forEach(btn=>btn.addEventListener("click",()=>navigate(btn.dataset.page.toLowerCase())));
+document.querySelector(".logout").addEventListener("click",()=>showToast("Logout clicked"));
+document.getElementById("uploadBtn").addEventListener("click",()=>document.getElementById("fileInput").click());
+document.getElementById("fileInput").addEventListener("change",e=>handleFile(e.target.files[0]));
+document.getElementById("dateBtn").addEventListener("click",()=>showToast("Date filtering can be connected to the Date column"));
+document.getElementById("filterBtn").addEventListener("click",showFilterPanel);
+
+loadStoredData();
+render("overview");
+initializeProfitLensChatbot();
+    
+/* =========================================================
+   PROFIT LENS AI
+   Machine Learning + Business Recommendation Chatbot
+========================================================= */
+
+
+/* =========================================================
+   1. NAIVE BAYES SENTIMENT CLASSIFIER
+========================================================= */
+
+class SentimentModel {
+
+  constructor(){
+
+    this.classes = [
+      "positive",
+      "negative",
+      "neutral"
+    ];
+
+    this.wordCounts = {
+      positive:{},
+      negative:{},
+      neutral:{}
+    };
+
+    this.classCounts = {
+      positive:0,
+      negative:0,
+      neutral:0
+    };
+
+    this.totalWords = {
+      positive:0,
+      negative:0,
+      neutral:0
+    };
+  }
+
+
+  tokenize(text){
+
+    return String(text || "")
+      .toLowerCase()
+      .replace(/[^a-zA-Z\s]/g,"")
+      .split(/\s+/)
+      .filter(word => word.length > 2);
+
+  }
+
+
+  train(text,label){
+
+    label = String(label || "")
+      .toLowerCase()
+      .trim();
+
+    if(!this.classes.includes(label)){
+      return;
+    }
+
+    this.classCounts[label]++;
+
+    const words =
+      this.tokenize(text);
+
+    words.forEach(word => {
+
+      if(!this.wordCounts[label][word]){
+        this.wordCounts[label][word] = 0;
+      }
+
+      this.wordCounts[label][word]++;
+
+      this.totalWords[label]++;
+
+    });
+
+  }
+
+
+  predict(text){
+
+    const words =
+      this.tokenize(text);
+
+    let bestClass = "neutral";
+    let bestScore = -Infinity;
+
+    const totalDocuments =
+      Object.values(this.classCounts)
+      .reduce((a,b)=>a+b,0);
+
+    if(totalDocuments === 0){
+      return "neutral";
+    }
+
+    this.classes.forEach(label => {
+
+      if(this.classCounts[label] === 0){
+        return;
+      }
+
+      let score =
+        Math.log(
+          this.classCounts[label] /
+          totalDocuments
+        );
+
+      words.forEach(word => {
+
+        const count =
+          this.wordCounts[label][word] || 0;
+
+        const probability =
+          (count + 1) /
+          (this.totalWords[label] + 1000);
+
+        score += Math.log(probability);
+
+      });
+
+      if(score > bestScore){
+
+        bestScore = score;
+        bestClass = label;
+
+      }
+
+    });
+
+    return bestClass;
+  }
+
+}
+
+
+/* =========================================================
+   2. TRAIN SENTIMENT MODEL
+========================================================= */
+
+function trainProfitLensSentiment(){
+
+  const model =
+    new SentimentModel();
+
+  /*
+     Your current normalized dataset does not
+     yet contain reviews/sentiment.
+
+     If later you add:
+
+     review
+     sentiment
+
+     columns, this model will automatically
+     learn from them.
+  */
+
+  importedOrders.forEach(order => {
+
+    if(
+      order.review &&
+      order.sentiment
+    ){
+
+      model.train(
+        order.review,
+        order.sentiment
+      );
+
+    }
+
+  });
+
+  return model;
+}
+
+
+/* =========================================================
+   3. PRODUCT ANALYSIS
+========================================================= */
+
+function aiAnalyzeProducts(){
+
+  const products = {};
+
+  importedOrders.forEach(order => {
+
+    const name =
+      order.product || "Unknown";
+
+    if(!products[name]){
+
+      products[name] = {
+        orders:0,
+        revenue:0,
+        quantity:0,
+        cancelled:0
+      };
+
+    }
+
+    products[name].orders++;
+
+    products[name].revenue +=
+      Number(order.amount) || 0;
+
+    products[name].quantity +=
+      Number(order.quantity) || 0;
+
+    if(
+      /cancel|reject/i.test(
+        order.status
+      )
+    ){
+
+      products[name].cancelled++;
+
+    }
+
+  });
+
+  return products;
+}
+
+
+/* =========================================================
+   4. AREA ANALYSIS
+========================================================= */
+
+function aiAnalyzeAreas(){
+
+  const areas = {};
+
+  importedOrders.forEach(order => {
+
+    const area =
+      order.area || "Unknown";
+
+    if(!areas[area]){
+
+      areas[area] = {
+        orders:0,
+        revenue:0,
+        cancelled:0
+      };
+
+    }
+
+    areas[area].orders++;
+
+    areas[area].revenue +=
+      Number(order.amount) || 0;
+
+    if(
+      /cancel|reject/i.test(
+        order.status
+      )
+    ){
+
+      areas[area].cancelled++;
+
+    }
+
+  });
+
+  Object.values(areas).forEach(area => {
+
+    area.cancellationRate =
+      area.orders
+        ? area.cancelled /
+          area.orders * 100
+        : 0;
+
+  });
+
+  return areas;
+}
+
+
+/* =========================================================
+   5. PRODUCT PROMOTION MODEL
+========================================================= */
+
+function aiPromotionAnalysis(){
+
+  const products =
+    aiAnalyzeProducts();
+
+  const result = [];
+
+  Object.entries(products)
+  .forEach(([name,data]) => {
+
+    if(data.orders === 0){
+      return;
+    }
+
+    const cancellationRate =
+      data.cancelled /
+      data.orders * 100;
+
+    /*
+       Promotion score
+
+       More orders     = positive
+       More revenue    = positive
+       More quantity   = positive
+       Cancellations   = negative
+    */
+
+    const score =
+      (data.orders * 3) +
+      (data.revenue / 100) +
+      (data.quantity * 0.5) -
+      (cancellationRate * 2);
+
+    result.push({
+
+      name:name,
+
+      orders:data.orders,
+
+      revenue:data.revenue,
+
+      quantity:data.quantity,
+
+      cancellationRate:
+
+        cancellationRate,
+
+      score:score
+
+    });
+
+  });
+
+  return result.sort(
+    (a,b)=>b.score-a.score
+  );
+}
+
+
+/* =========================================================
+   6. CANCELLATION ANALYSIS
+========================================================= */
+
+function aiCancellationAnalysis(){
+
+  const areas =
+    aiAnalyzeAreas();
+
+  return Object.entries(areas)
+
+    .map(([name,data]) => ({
+
+      name:name,
+
+      orders:data.orders,
+
+      cancelled:data.cancelled,
+
+      rate:data.cancellationRate
+
+    }))
+
+    .sort(
+      (a,b)=>b.rate-a.rate
+    );
+
+}
+
+
+/* =========================================================
+   7. REVIEW ANALYSIS
+========================================================= */
+
+function aiReviewAnalysis(){
+
+  const model =
+    trainProfitLensSentiment();
+
+  const result = {
+
+    positive:0,
+
+    negative:0,
+
+    neutral:0,
+
+    reviews:[]
+
+  };
+
+
+  importedOrders.forEach(order => {
+
+    /*
+       These properties are not currently
+       created by your importer.
+
+       We will add them later.
+    */
+
+    const review =
+      order.review ||
+      order.feedback ||
+      "";
+
+    if(!review){
+      return;
+    }
+
+    let sentiment =
+      order.sentiment;
+
+    if(!sentiment){
+
+      sentiment =
+        model.predict(review);
+
+    }
+
+    if(
+      result[sentiment] !== undefined
+    ){
+
+      result[sentiment]++;
+
+    }
+
+    result.reviews.push({
+
+      text:review,
+
+      sentiment:sentiment
+
+    });
+
+  });
+
+
+  return result;
+}
+
+
+/* =========================================================
+   8. BUSINESS RECOMMENDATION ENGINE
+========================================================= */
+
+function aiGenerateRecommendations(){
+
+  if(!importedOrders.length){
+
+    return [
+      "Import your food-delivery dataset first."
+    ];
+
+  }
+
+
+  const recommendations = [];
+
+
+  /* PRODUCT */
+
+  const products =
+    aiPromotionAnalysis();
+
+  if(products.length){
+
+    const top =
+      products[0];
+
+    recommendations.push({
+
+      icon:"🍽️",
+
+      text:
+        `Consider promoting <b>${escapeHtml(top.name)}</b>. It has ${top.orders} orders and generated ${formatMoney(top.revenue)} in revenue.`
+
+    });
+
+  }
+
+
+  /* CANCELLATION */
+
+  const areas =
+    aiCancellationAnalysis();
+
+  if(areas.length){
+
+    const worst =
+      areas[0];
+
+    if(worst.rate > 10){
+
+      recommendations.push({
+
+        icon:"⚠️",
+
+        text:
+          `<b>${escapeHtml(worst.name)}</b> has a cancellation rate of <b>${pct(worst.rate)}</b>. Delivery capacity or service quality in this area should be investigated.`
+
+      });
+
+    }
+
+  }
+
+
+  /* PEAK TIME */
+
+  const peak =
+    peakHour(importedOrders);
+
+  if(peak !== null){
+
+    recommendations.push({
+
+      icon:"⏰",
+
+      text:
+        `The busiest ordering period is around <b>${formatHour(peak)}</b>. Consider preparing additional delivery capacity around this time.`
+
+    });
+
+  }
+
+
+  /* REVIEWS */
+
+  const reviews =
+    aiReviewAnalysis();
+
+  if(
+    reviews.negative >
+    reviews.positive
+  ){
+
+    recommendations.push({
+
+      icon:"⭐",
+
+      text:
+        `Negative customer feedback currently exceeds positive feedback. Reviewing recurring complaints could help identify service problems.`
+
+    });
+
+  }
+
+
+  return recommendations;
+
+}
+
+
+/* =========================================================
+   9. QUESTION UNDERSTANDING
+========================================================= */
+
+function aiAnswer(question){
+
+  const q =
+    question
+      .toLowerCase()
+      .trim();
+
+
+  if(!importedOrders.length){
+
+    return `
+      <b>No data loaded yet.</b><br><br>
+      Import your food-delivery CSV or JSON
+      first and then I can analyse it.
+    `;
+
+  }
+
+
+  /* -----------------------------------------
+     PROMOTION
+  ----------------------------------------- */
+
+  if(
+    q.includes("promote") ||
+    q.includes("promotion") ||
+    q.includes("advertise") ||
+    q.includes("sell more")
+  ){
+
+    const products =
+      aiPromotionAnalysis()
+      .slice(0,5);
+
+    let html =
+      `<b>Products with strong promotion potential:</b>
+       <div class="chat-analysis">`;
+
+    products.forEach((p,i)=>{
+
+      html += `
+        ${i+1}.
+        <b>${escapeHtml(p.name)}</b><br>
+
+        Orders:
+        ${p.orders}<br>
+
+        Revenue:
+        ${formatMoney(p.revenue)}<br>
+
+        Cancellation:
+        ${pct(p.cancellationRate)}
+
+        <hr style="border:0;border-top:1px solid #eee;margin:7px 0">
+      `;
+
+    });
+
+    html += "</div>";
+
+    return html;
+
+  }
+
+
+  /* -----------------------------------------
+     CANCELLATION
+  ----------------------------------------- */
+
+  if(
+    q.includes("cancel") ||
+    q.includes("cancellation")
+  ){
+
+    const areas =
+      aiCancellationAnalysis()
+      .slice(0,5);
+
+    let html =
+      `<b>Cancellation analysis:</b>
+       <div class="chat-analysis">`;
+
+    areas.forEach((a,i)=>{
+
+      html += `
+        ${i+1}.
+        <b>${escapeHtml(a.name)}</b><br>
+
+        Orders:
+        ${a.orders}<br>
+
+        Cancelled:
+        ${a.cancelled}<br>
+
+        Cancellation rate:
+        <span class="${
+          a.rate > 10
+            ? "chat-negative"
+            : ""
+        }">
+          ${pct(a.rate)}
+        </span>
+
+        <hr style="border:0;border-top:1px solid #eee;margin:7px 0">
+      `;
+
+    });
+
+    html += "</div>";
+
+    return html;
+
+  }
+
+
+  /* -----------------------------------------
+     PRODUCT
+  ----------------------------------------- */
+
+  if(
+    q.includes("product") ||
+    q.includes("best selling") ||
+    q.includes("top selling")
+  ){
+
+    const products =
+      aiPromotionAnalysis()
+      .slice(0,5);
+
+    let html =
+      "<b>Product performance:</b><br><br>";
+
+    products.forEach((p,i)=>{
+
+      html += `
+        ${i+1}.
+        <b>${escapeHtml(p.name)}</b>
+        — ${p.orders} orders,
+        ${formatMoney(p.revenue)}
+        <br>
+      `;
+
+    });
+
+    return html;
+
+  }
+
+
+  /* -----------------------------------------
+     AREA
+  ----------------------------------------- */
+
+  if(
+    q.includes("area") ||
+    q.includes("location") ||
+    q.includes("where")
+  ){
+
+    const areas =
+      Object.entries(aiAnalyzeAreas())
+      .sort(
+        (a,b)=>
+          b[1].orders-a[1].orders
+      )
+      .slice(0,5);
+
+    let html =
+      "<b>Top delivery areas:</b><br><br>";
+
+    areas.forEach((a,i)=>{
+
+      html += `
+        ${i+1}.
+        <b>${escapeHtml(a[0])}</b>
+        — ${a[1].orders} orders,
+        ${formatMoney(a[1].revenue)}
+        <br>
+      `;
+
+    });
+
+    return html;
+
+  }
+
+
+  /* -----------------------------------------
+     REVIEW
+  ----------------------------------------- */
+
+  if(
+    q.includes("review") ||
+    q.includes("feedback") ||
+    q.includes("customer")
+  ){
+
+    const reviews =
+      aiReviewAnalysis();
+
+    if(
+      reviews.reviews.length === 0
+    ){
+
+      return `
+        Your current imported dataset does
+        not contain a review/feedback column.
+
+        <br><br>
+
+        Add a <b>Review</b> column to your
+        dataset and I can train a sentiment
+        classifier from labeled reviews.
+      `;
+
+    }
+
+
+    return `
+      <b>Customer sentiment:</b><br><br>
+
+      <span class="chat-positive">
+      Positive: ${reviews.positive}
+      </span><br>
+
+      <span class="chat-negative">
+      Negative: ${reviews.negative}
+      </span><br>
+
+      Neutral: ${reviews.neutral}
+    `;
+
+  }
+
+
+  /* -----------------------------------------
+     REVENUE
+  ----------------------------------------- */
+
+  if(
+    q.includes("revenue") ||
+    q.includes("earning") ||
+    q.includes("money")
+  ){
+
+    const revenue =
+      importedOrders
+      .reduce(
+        (sum,o)=>
+          sum + Number(o.amount || 0),
+        0
+      );
+
+    return `
+      <b>Total revenue:</b><br><br>
+
+      <span style="font-size:20px;font-weight:bold">
+        ${formatMoney(revenue)}
+      </span>
+    `;
+
+  }
+
+
+  /* -----------------------------------------
+     IMPROVEMENT
+  ----------------------------------------- */
+
+  if(
+    q.includes("improve") ||
+    q.includes("suggest") ||
+    q.includes("recommend") ||
+    q.includes("advice") ||
+    q.includes("what should")
+  ){
+
+    const recommendations =
+      aiGenerateRecommendations();
+
+    let html =
+      "<b>Business recommendations:</b><br><br>";
+
+    recommendations.forEach(r=>{
+
+      html += `
+        <div class="chat-analysis">
+          ${r.icon}
+          ${r.text}
+        </div>
+      `;
+
+    });
+
+    return html;
+
+  }
+
+
+  /* -----------------------------------------
+     DEFAULT
+  ----------------------------------------- */
+
+  return `
+    I can analyse your imported sales data.
+
+    <br><br>
+
+    Try asking:
+
+    <br><br>
+
+    • Which product should I promote?<br>
+    • Where are cancellations highest?<br>
+    • Which product sells the most?<br>
+    • Which area gets the most orders?<br>
+    • What are customers saying?<br>
+    • How much revenue did we make?<br>
+    • What should I improve?
+  `;
+
+}
+
+
+/* =========================================================
+   10. CHAT UI
+========================================================= */
+
+function initializeProfitLensChatbot(){
+
+  const launcher =
+    document.getElementById(
+      "chatbotLauncher"
+    );
+
+  const chatbot =
+    document.getElementById(
+      "profitLensChatbot"
+    );
+
+  const close =
+    document.getElementById(
+      "chatbotClose"
+    );
+
+  const send =
+    document.getElementById(
+      "chatbotSend"
+    );
+
+  const input =
+    document.getElementById(
+      "chatbotInput"
+    );
+
+
+  launcher.onclick=()=>{
+
+    chatbot.style.display="flex";
+
+    launcher.style.display="none";
+
+    input.focus();
+
+  };
+
+
+  close.onclick=()=>{
+
+    chatbot.style.display="none";
+
+    launcher.style.display="block";
+
+  };
+
+
+  send.onclick=sendProfitLensMessage;
+
+
+  input.addEventListener(
+    "keydown",
+    event=>{
+
+      if(event.key==="Enter"){
+
+        sendProfitLensMessage();
+
+      }
+
+    }
+  );
+
+
+  document
+    .querySelectorAll(
+      ".chatbot-suggestions button"
+    )
+    .forEach(button=>{
+
+      button.onclick=()=>{
+
+        const question =
+          button.dataset.question;
+
+        addChatUserMessage(
+          question
+        );
+
+        const answer =
+          aiAnswer(question);
+
+        addChatBotMessage(answer);
+
+      };
+
+    });
+
+}
+
+
+/* =========================================================
+   11. SEND MESSAGE
+========================================================= */
+
+function sendProfitLensMessage(){
+
+  const input =
+    document.getElementById(
+      "chatbotInput"
+    );
+
+  const question =
+    input.value.trim();
+
+  if(!question){
+    return;
+  }
+
+  addChatUserMessage(question);
+
+  input.value="";
+
+  setTimeout(()=>{
+
+    const answer =
+      aiAnswer(question);
+
+    addChatBotMessage(answer);
+
+  },300);
+
+}
+
+
+/* =========================================================
+   12. ADD USER MESSAGE
+========================================================= */
+
+function addChatUserMessage(message){
+
+  const container =
+    document.getElementById(
+      "chatbotMessages"
+    );
+
+  const div =
+    document.createElement("div");
+
+  div.className=
+    "chat-message user";
+
+  div.textContent=
+    message;
+
+  container.appendChild(div);
+
+  container.scrollTop=
+    container.scrollHeight;
+
+}
+
+
+/* =========================================================
+   13. ADD BOT MESSAGE
+========================================================= */
+
+function addChatBotMessage(message){
+
+  const container =
+    document.getElementById(
+      "chatbotMessages"
+    );
+
+  const div =
+    document.createElement("div");
+
+  div.className=
+    "chat-message bot";
+
+  div.innerHTML=
+    message;
+
+  container.appendChild(div);
+
+  container.scrollTop=
+    container.scrollHeight;
+
+}
+</script>
+</body>
+</html>
